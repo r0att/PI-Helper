@@ -1,24 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>Profile - PI Helper</title>
-    <style>
-        #edit-profile-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
 
-        #edit-profile-modal-content {
-            background: white;
-            padding: 20px;
-            min-width: 300px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+
+    <script src="{% static 'js/profile.js' %}" defer></script>
 </head>
 <body>
 
@@ -57,60 +46,11 @@
         </div>
     </div>
 
-    <script>
-        const editButton = document.getElementById("edit-profile-button");
-        const modal = document.getElementById("edit-profile-modal");
-        const closeButton = document.getElementById("close-profile-modal");
-
-        const usernameInput = document.getElementById("id_username");
-
-        const usernameAvailability = document.createElement("p");
-        usernameInput.parentElement.appendChild(usernameAvailability);
-
-        let usernameCheckTimeout = null;
-
-        usernameInput.addEventListener("input", () => {
-            clearTimeout(usernameCheckTimeout);
-
-            const username = usernameInput.value.trim();
-
-            usernameAvailability.textContent = "";
-
-            if (!username) {
-                return;
-            }
-
-            usernameCheckTimeout = setTimeout(async () => {
-                const response = await fetch(
-                    `{% url 'check_username' %}?username=${encodeURIComponent(username)}`
-                );
-
-                const data = await response.json();
-
-                if (data.available) {
-                    usernameAvailability.textContent =
-                        "Username is available.";
-                } else {
-                    usernameAvailability.textContent =
-                        "Username is already taken";
-                }
-            }, 300);
-        });
-
-        editButton.addEventListener("click", () => {
-            modal.style.display = "flex";
-        });
-
-        closeButton.addEventListener("click", () => {
-            modal.style.display = "none";
-        });
-    </script>
-
-    {% if username_form.errors or profile_form.errors %}
-    <script>
-        modal.style.display = "flex";
-    </script>
-    {% endif %}
+    <div
+        id="profile-data"
+        data-check-username-url="{% url 'check_username' %}"
+        data-has-errors="{% if username_form.errors or profile_form.errors %}true{% else %}false{% endif %}"
+    ></div>
 
     <a href="{% url 'change_password' %}">
         Change password

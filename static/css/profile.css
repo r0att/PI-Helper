@@ -1,0 +1,14 @@
+#edit-profile-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+#edit-profile-modal-content {
+    background: white;
+    padding: 20px;
+    min-width: 300px;
+}
