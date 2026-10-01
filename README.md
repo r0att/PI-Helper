@@ -2,7 +2,7 @@
 
 PI Helper is a Django web application for practicing and memorizing the digits of π.
 
-- Features
+## Features
 
 * Challenge mode with multiple lives
 * Hard Mode with one life and limited digit visibility
@@ -25,33 +25,43 @@ PI Helper is a Django web application for practicing and memorizing the digits o
 * CSS
 * JavaScript
 
-- Installation
+## Installation
 
 Clone the repository:
 
+```bash
 git clone <repository-url>
 cd PI-Helper
+```
 
 Create and activate a virtual environment:
 
+```bash
 py -m venv .venv
 .venv\Scripts\activate
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
 Apply migrations:
 
+```bash
 py -m manage migrate
+```
 
 Start the development server:
 
+```bash
 py -m manage runserver
+```
 
 Then open the address shown by Django in your browser.
 
-- Project Status
+## Project Status
 
 PI Helper is currently under development.
 
