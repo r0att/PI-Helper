@@ -16,7 +16,7 @@ PI Helper is a Django web application for practicing and memorizing the digits o
 * Password change with email confirmation
 * Achievements
 
-- Technologies
+## Technologies
 
 * Python
 * Django
