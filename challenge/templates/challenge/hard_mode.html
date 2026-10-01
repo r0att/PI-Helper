@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hard Mode - PI Helper</title>
+</head>
+<body>
+
+    <h1>Hard Mode</h1>
+
+    <p>Lives: <span id="lives">1</span></p>
+
+    <p>Start digit: {{ start_digit }}</p>
+    <p>End digit: {{ end_digit }}</p>
+
+    <p>Time: <span id="timer">0.000</span> s</p>
+
+    {% if best_time %}
+        <p>Best time: <span id="best-time" data-time="{{ best_time.best_time_ms }}"></span></p>
+
+        <script>
+            const bestTimeElement = document.getElementById("best-time");
+            const bestTimeMs = Number(bestTimeElement.dataset.time);
+
+            if (bestTimeMs < 60000) {
+                bestTimeElement.textContent = (bestTimeMs / 1000).toFixed(3) + " s";
+            } else {
+                const minutes = Math.floor(bestTimeMs / 60000);
+                const seconds = ((bestTimeMs % 60000) / 1000).toFixed(3);
+
+                bestTimeElement.textContent = minutes + " m " + seconds + " s";
+            }
+        </script>
+    {% endif %}
+
+    <p id="entered-digits"></p>
+
+    <input type="text" id="digit-input" maxlength="1" autofocus>
+
+    <a href="{% url 'challenge' %}">New Challenge</a>
+    <a href="{% url 'home' %}">Back to home</a>
+
+    <script>
+        const startDigit = Number("{{ start_digit }}");
+        const piDigits = "{{ pi_digits }}";
+        const hasEndDigit = "{{ end_digit }}" !== "None";
+        const endDigit = "{{ end_digit }}";
+
+        let currentIndex = 0;
+        let enteredDigits = "";
+        let lives = 1;
+        let statsSaved = false;
+        let startTime = null;
+        let timerInterval = null;
+        let finalTimeMs = 0;
+
+        const input = document.getElementById("digit-input");
+        const enteredDisplay = document.getElementById("entered-digits");
+        const livesDisplay = document.getElementById("lives");
+        const timerDisplay = document.getElementById("timer");
+
+        input.addEventListener("input", () => {
+            const digit = input.value;
+
+            if (!/^\d$/.test(digit)) {
+                input.value = "";
+                return;
+            }
+
+            if (digit === piDigits[currentIndex]) {
+                if (startTime === null) {
+                    startTime = performance.now();
+
+                    timerInterval = setInterval(() => {
+                        const elapsed = performance.now() - startTime;
+                        timerDisplay.textContent = (elapsed / 1000).toFixed(3);
+                    }, 10);
+                }
+
+                enteredDigits += digit;
+                currentIndex++;
+
+                enteredDisplay.textContent = enteredDigits.slice(-4);
+
+                input.value = "";
+
+                if (hasEndDigit && currentIndex >= Number(endDigit) - startDigit + 1) {
+                    finalTimeMs = Math.round(Number(timerDisplay.textContent) * 1000);
+                    input.disabled = true;
+                    finishHardMode(true);
+                    alert("Hard Mode completed!");
+                    return;
+                }
+
+                if (currentIndex === piDigits.length) {
+                    finalTimeMs = Math.round(Number(timerDisplay.textContent) * 1000);
+                    input.disabled = true;
+                    finishHardMode(true);
+                    alert("No more PI digits available.");
+                    return;
+                }
+            } else {
+                lives--;
+                livesDisplay.textContent = lives;
+                input.value = "";
+
+                if (lives === 0) {
+                    input.disabled = true;
+                    finishHardMode(false);
+                    alert("Game over!");
+                }
+            }
+        });
+
+        function finishHardMode(won) {
+            clearInterval(timerInterval);
+
+            if (statsSaved) {
+                return;
+            }
+
+            statsSaved = true;
+
+            const formData = new URLSearchParams();
+
+            formData.append("start_digit", startDigit);
+            formData.append("end_digit", "{{ end_digit }}");
+            formData.append("digits_entered", enteredDigits.length);
+            formData.append("won", won);
+            formData.append("time_ms", finalTimeMs);
+
+            fetch("{% url 'finish_hard_mode' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: formData,
+            });
+        }
+    </script>
+
+</body>
+</html>
