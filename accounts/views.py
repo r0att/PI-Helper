@@ -1,3 +1,7 @@
+import uuid
+
+from datetime import timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login, logout
@@ -5,6 +9,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
+from django.utils import timezone
 
 from .forms import (
     RegistrationForm,
@@ -12,12 +17,13 @@ from .forms import (
     UsernameForm,
     ChangePasswordForm,
     ChangeEmailForm,
+    ResendVerificationForm,
 )
 from .models import (
     EmailChangeToken,
     EmailVerificationToken,
     PasswordChangeToken,
-    User
+    User,
 )
 
 def register(request):
@@ -48,6 +54,87 @@ def register(request):
         form = RegistrationForm()
 
     return render(request, "accounts/register.html", {"form": form})
+
+def resend_verification(request):
+    if request.method == "POST":
+        form = ResendVerificationForm(request.POST)
+
+        if form.is_valid():
+            user = form.user
+            verification_token = EmailVerificationToken.objects.get(
+                user=user
+            )
+
+            now = timezone.now()
+
+            if now - verification_token.send_window_started_at >= timedelta(
+                hours=1
+            ):
+                verification_token.send_count = 1
+                verification_token.send_window_started_at = now
+            else:
+                if now - verification_token.last_sent_at < timedelta(
+                    minutes=2,
+                ):
+                    form.add_error(
+                        "email",
+                        "You can request another email in less than 2 minutes.",
+                    )
+
+                    return render(
+                        request,
+                        "accounts/resend_verification.html",
+                        {"form": form},
+                    )
+                
+                if verification_token.send_count >= 5:
+                    form.add_error(
+                        None,
+                        "You have reached the email limit. Try again later.",
+                    )
+
+                    return render(
+                        request,
+                        "accounts/resend_verification.html",
+                        {"form": form},
+                    )
+
+                verification_token.send_count += 1
+                
+            verification_token.token = uuid.uuid4()
+            verification_token.last_sent_at = now
+            verification_token.save()
+
+            verification_url = request.build_absolute_uri(
+                reverse(
+                    "verify_email",
+                    args=[verification_token.token],
+                )
+            )
+
+            send_mail(
+                "Verify your email - PI Helper",
+                (
+                    "Click the link below to verify your email:\n\n"
+                    f"{verification_url}"
+                ),
+                None,
+                [user.email],
+            )
+
+            return render(
+                request,
+                "accounts/resend_verification_sent.html",
+            )
+
+    else:
+        form = ResendVerificationForm()
+
+    return render(
+        request,
+        "accounts/resend_verification.html",
+        {"form": form},
+    )
 
 def login_view(request):
     if request.method == "POST":
@@ -151,6 +238,20 @@ def check_username(request):
         username=username
     ).exclude(
         pk=request.user.pk
+    ).exists()
+
+    return JsonResponse(
+        {"available": not username_exists}
+    )
+
+def check_registration_username(request):
+    username = request.GET.get("username", "").strip()
+
+    if not username:
+        return JsonResponse({"available": False})
+
+    username_exists = User.objects.filter(
+        username=username
     ).exists()
 
     return JsonResponse(

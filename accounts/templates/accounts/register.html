@@ -1,7 +1,12 @@
 {% extends "accounts_base.html" %}
+{% load static %}
 
 {% block title %}
     Register - PI Helper
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/register.js' %}" defer></script>
 {% endblock %}
 
 {% block account_content %}
@@ -15,6 +20,11 @@
 
         <button type="submit">Register</button>
     </form>
+
+    <div
+        id="register-data"
+        data-check-username-url="{% url 'check_registration_username' %}"
+    ></div>
 
     <p>
         Already have an account?

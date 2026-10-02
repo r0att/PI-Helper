@@ -11,6 +11,8 @@ from .views import (
     check_username,
     change_email,
     confirm_email_change,
+    resend_verification,
+    check_registration_username,
 )
 
 
@@ -25,4 +27,6 @@ urlpatterns = [
     path("check-username/", check_username, name="check_username"),
     path("change-email/", change_email, name="change_email"),
     path("confirm-email-change/<uuid:token>/", confirm_email_change, name="confirm_email_change"),
+    path("resend-verification/", resend_verification, name="resend_verification"),
+    path("check-registration-username/", check_registration_username, name="check_registration_username"),
 ]

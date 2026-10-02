@@ -1,0 +1,19 @@
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Verification email sent - PI Helper
+{% endblock %}
+
+{% block account_content %}
+
+    <h1>Check your email</h1>
+
+    <p>
+        A new verification link has been sent to your email address.
+    </p>
+
+    <a href="{% url 'login' %}">
+        Back to login
+    </a>
+
+{% endblock %}

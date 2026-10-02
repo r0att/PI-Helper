@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 from django.db import models
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -48,6 +49,9 @@ class EmailVerificationToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid.uuid4, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_sent_at = models.DateTimeField(auto_now=True)
+    send_count = models.PositiveIntegerField(default=1)
+    send_window_started_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return self.user.username

@@ -1,0 +1,29 @@
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Resend verification email - PI Helper
+{% endblock %}
+
+{% block account_content %}
+
+    <h1>Resend verification email</h1>
+
+    <p>
+        Enter your account details to receive a new verification email.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Resend verification email
+        </button>
+    </form>
+
+    <a href="{% url 'login' %}">
+        Back to login
+    </a>
+
+{% endblock %}

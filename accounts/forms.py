@@ -100,3 +100,45 @@ class ChangePasswordForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class ResendVerificationForm(forms.Form):
+    username = forms.CharField()
+    email = forms.EmailField()
+    password = forms.CharField(
+        widget=forms.PasswordInput,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        username = cleaned_data.get("username")
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+
+        if not username or not email or not password:
+            return cleaned_data
+
+        try:
+            user = User.objects.get(
+                username=username,
+                email=email,
+            )
+        except User.DoesNotExist:
+            raise forms.ValidationError(
+                "Invalid account details."
+            )
+
+        if user.is_active:
+            raise forms.ValidationError(
+                "This account is already verified."
+            )
+
+        if not user.check_password(password):
+            raise forms.ValidationError(
+                "Invalid account details."
+            )
+
+        self.user = user
+
+        return cleaned_data
