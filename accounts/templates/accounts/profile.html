@@ -95,6 +95,10 @@
 
     <a href="{% url 'home' %}">Back to home</a>
 
+    <form action="{% url 'password_reset' %}" method="get">
+        <button type="submit">Reset password</button>
+    </form>
+
     <button type="button" id="delete-account-button">
         Delete account
     </button>

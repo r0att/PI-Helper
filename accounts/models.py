@@ -67,6 +67,17 @@ class PasswordChangeToken(models.Model):
         return self.user.username
 
 
+class PasswordResetToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    last_sent_at = models.DateTimeField(auto_now=True)
+    send_count = models.PositiveIntegerField(default=1)
+    send_window_started_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.user.username
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

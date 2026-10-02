@@ -14,6 +14,8 @@ from .views import (
     resend_verification,
     check_registration_username,
     delete_account,
+    request_password_reset,
+    reset_password,
 )
 
 
@@ -31,4 +33,6 @@ urlpatterns = [
     path("resend-verification/", resend_verification, name="resend_verification"),
     path("check-registration-username/", check_registration_username, name="check_registration_username"),
     path("delete-account/", delete_account, name="delete_account"),
+    path("password-reset/", request_password_reset, name="password_reset"),
+    path("password-reset/<uuid:token>/", reset_password, name="password_reset_confirm"),
 ]

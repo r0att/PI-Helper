@@ -19,11 +19,14 @@ from .forms import (
     ChangeEmailForm,
     ResendVerificationForm,
     DeleteAccountForm,
+    PasswordResetRequestForm,
+    PasswordResetForm,
 )
 from .models import (
     EmailChangeToken,
     EmailVerificationToken,
     PasswordChangeToken,
+    PasswordResetToken,
     User,
 )
 
@@ -134,6 +137,134 @@ def resend_verification(request):
         "accounts/resend_verification.html",
         {"form": form},
     )
+
+
+def request_password_reset(request):
+    if request.method == "POST":
+        form = PasswordResetRequestForm(request.POST)
+
+        if form.is_valid():
+            user = User.objects.filter(
+                email=form.cleaned_data["email"],
+                is_active=True,
+            ).first()
+
+            if user is not None:
+                reset_token, created = PasswordResetToken.objects.get_or_create(
+                    user=user,
+                )
+                now = timezone.now()
+
+                if not created:
+                    if now - reset_token.send_window_started_at >= timedelta(
+                        hours=1
+                    ):
+                        reset_token.send_count = 1
+                        reset_token.send_window_started_at = now
+                    else:
+                        if now - reset_token.last_sent_at < timedelta(
+                            minutes=2,
+                        ):
+                            form.add_error(
+                                "email",
+                                "You can request another email in less than 2 minutes.",
+                            )
+
+                            return render(
+                                request,
+                                "accounts/password_reset.html",
+                                {"form": form},
+                            )
+
+                        if reset_token.send_count >= 5:
+                            form.add_error(
+                                None,
+                                "You have reached the email limit. Try again later.",
+                            )
+
+                            return render(
+                                request,
+                                "accounts/password_reset.html",
+                                {"form": form},
+                            )
+
+                        reset_token.send_count += 1
+
+                    reset_token.token = uuid.uuid4()
+                    reset_token.last_sent_at = now
+                    reset_token.save()
+
+                reset_url = request.build_absolute_uri(
+                    reverse(
+                        "password_reset_confirm",
+                        args=[reset_token.token],
+                    )
+                )
+
+                send_mail(
+                    "Reset your PI Helper password",
+                    (
+                        "A password reset was requested for your PI Helper account.\n\n"
+                        "To choose a new password, open this link:\n\n"
+                        f"{reset_url}\n\n"
+                        "If you did not request this change, you can ignore this email."
+                    ),
+                    None,
+                    [user.email],
+                )
+
+            return render(
+                request,
+                "accounts/password_reset_sent.html",
+            )
+
+    else:
+        form = PasswordResetRequestForm()
+
+    return render(
+        request,
+        "accounts/password_reset.html",
+        {"form": form},
+    )
+
+
+def reset_password(request, token):
+    reset_token = PasswordResetToken.objects.select_related("user").filter(
+        token=token
+    ).first()
+
+    if reset_token is None:
+        return render(
+            request,
+            "accounts/password_reset_invalid.html",
+        )
+
+    if request.method == "POST":
+        form = PasswordResetForm(
+            reset_token.user,
+            request.POST,
+        )
+
+        if form.is_valid():
+            reset_token.user.set_password(
+                form.cleaned_data["new_password"]
+            )
+            reset_token.user.save(update_fields=["password"])
+            reset_token.delete()
+
+            return render(
+                request,
+                "accounts/password_reset_success.html",
+            )
+    else:
+        form = PasswordResetForm(reset_token.user)
+
+    return render(
+        request,
+        "accounts/password_reset_form.html",
+        {"form": form},
+    )
+
 
 def login_view(request):
     if request.method == "POST":
