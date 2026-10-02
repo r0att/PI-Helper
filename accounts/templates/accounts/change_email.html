@@ -1,0 +1,21 @@
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Change email - PI Helper
+{% endblock %}
+
+{% block account_content %}
+
+    <h1>Change email</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Change email</button>
+    </form>
+
+    <a href="{% url 'profile' %}">Back to profile</a>
+
+{% endblock %}

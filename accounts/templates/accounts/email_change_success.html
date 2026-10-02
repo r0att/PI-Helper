@@ -1,0 +1,17 @@
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Email changed successfully - PI Helper
+{% endblock %}
+
+{% block account_content %}
+
+    <h1>Email changed successfully</h1>
+
+    <p>
+        Your email address has been changed successfully.
+    </p>
+
+    <a href="{% url 'profile' %}">Back to profile</a>
+
+{% endblock %}
