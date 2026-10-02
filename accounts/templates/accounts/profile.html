@@ -1,15 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <title>Profile - PI Helper</title>
 
+{% block title %}
+    Profile - PI Helper
+{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 
+{% block extra_js %}
     <script src="{% static 'js/profile.js' %}" defer></script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
 
     <h1>{{ request.user.username }}</h1>
 
@@ -87,5 +91,4 @@
 
     <a href="{% url 'home' %}">Back to home</a>
 
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{% block title %}PI Helper{% endblock %}</title>
+
+    {% block extra_css %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</head>
+<body>
+
+    <header>
+        <h1>PI Helper</h1>
+        
+        {% block navigation %}
+            <nav>
+                <a href="{% url 'challenge' %}">Challenge</a>
+                <a href="#">PI Digits</a>
+                <a href="#">Got Stuck</a>
+            
+                {% if user.is_authenticated %}
+                    <a href="#">Achievements</a>
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </nav>
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

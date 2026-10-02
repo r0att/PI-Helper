@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Register - PI Helper</title>
-</head>
-<body>
-    
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Register - PI Helper
+{% endblock %}
+
+{% block account_content %}
+
     <h1>Register</h1>
 
     <form method="post">
@@ -21,5 +21,4 @@
         <a href="{% url 'login' %}">Login</a>
     </p>
 
-</body>
-</html>
+{% endblock %}

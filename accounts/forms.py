@@ -25,6 +25,28 @@ class UsernameForm(forms.ModelForm):
         fields = ("username",)
 
 
+class ChangeEmailForm(forms.Form):
+    new_email = forms.EmailField(
+        label="New email",
+    )
+
+    def __init__(self, user: User, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_new_email(self):
+        new_email = self.cleaned_data["new_email"]
+
+        if User.objects.filter(email=new_email).exclude(
+            pk=self.user.pk
+        ).exists():
+            raise forms.ValidationError(
+                "This email is already in use."
+            )
+
+        return new_email
+
+
 class ChangePasswordForm(forms.Form):
     current_password = forms.CharField(
         label="Current password",

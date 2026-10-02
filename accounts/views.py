@@ -11,9 +11,14 @@ from .forms import (
     ProfileForm,
     UsernameForm,
     ChangePasswordForm,
+    ChangeEmailForm,
 )
-from .models import EmailVerificationToken, PasswordChangeToken, User
-
+from .models import (
+    EmailChangeToken,
+    EmailVerificationToken,
+    PasswordChangeToken,
+    User
+)
 
 def register(request):
     if request.method == "POST":
@@ -150,6 +155,74 @@ def check_username(request):
 
     return JsonResponse(
         {"available": not username_exists}
+    )
+
+@login_required
+def change_email(request):
+    if request.method == "POST":
+        form = ChangeEmailForm(request.user, request.POST)
+
+        if form.is_valid():
+            EmailChangeToken.objects.filter(
+                user=request.user
+            ).delete()
+
+            email_token = EmailChangeToken.objects.create(
+                user=request.user,
+                new_email=form.cleaned_data["new_email"],
+            )
+
+            verification_url = request.build_absolute_uri(
+                reverse(
+                    "confirm_email_change",
+                    args=[email_token.token],
+                )
+            )
+
+            send_mail(
+                "Confirm email change - PI Helper",
+                (
+                    "Click the link below to confirm your email change:\n\n"
+                    f"{verification_url}"
+                ),
+                None,
+                [email_token.new_email],
+            )
+
+            return render(
+                request,
+                "accounts/email_change_sent.html",
+            )
+
+    else:
+        form = ChangeEmailForm(request.user)
+
+    return render(
+        request,
+        "accounts/change_email.html",
+        {"form": form},
+    )
+
+def confirm_email_change(request, token):
+    try:
+        email_token = EmailChangeToken.objects.get(
+            token=token
+        )
+    except EmailChangeToken.DoesNotExist:
+        return render(
+            request,
+            "accounts/email_change_invalid.html",
+        )
+
+    user = email_token.user
+    user.email = email_token.new_email
+    user.save(update_fields=["email"])
+
+    email_token.delete()
+
+    return render(
+        request,
+        "accounts/email_change_success.html"
     )
 
 @login_required

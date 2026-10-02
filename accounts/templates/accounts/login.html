@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - PI Helper</title>
-</head>
-<body>
+{% extends "accounts_base.html" %}
+
+{% block title %}
+    Login - PI Helper
+{% endblock %}
+
+{% block account_content %}
 
     <h1>Login</h1>
 
@@ -33,5 +33,4 @@
         <a href="{% url 'home' %}">Continue as guest</a>
     </p>
 
-</body>
-</html>
+{% endblock %}

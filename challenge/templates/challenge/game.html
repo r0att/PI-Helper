@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <title>Challenge - PI Helper</title>
 
+{% block title %}
+    Challenge - PI Helper
+{% endblock %}
+
+{% block extra_js %}
     <script src="{% static 'js/challenge.js' %}" defer></script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
 
     <h1>Challenge</h1>
 
@@ -19,12 +21,25 @@
     <p>Digit: <span id="current-digit">{{ start_digit }}</span></p>
     <p>Entered: <span id="entered-count">0</span></p>
     <p>Time: <span id="timer">0.000</span> s</p>
+
     {% if best_time %}
-        <p>Best time: <span id="best-time" data-time="{{ best_time.best_time_ms }}"></span></p>
+        <p>
+            Best time:
+            <span
+                id="best-time"
+                data-time="{{ best_time.best_time_ms }}"
+            ></span>
+        </p>
     {% endif %}
+
     <p id="entered-digits"></p>
 
-    <input type="text" id="digit-input" maxlength="1" autofocus>
+    <input
+        type="text"
+        id="digit-input"
+        maxlength="1"
+        autofocus
+    >
 
     <a href="{% url 'challenge' %}">New Challenge</a>
     <a href="{% url 'home' %}">Back to home</a>
@@ -38,5 +53,4 @@
         data-csrf-token="{{ csrf_token }}"
     ></div>
 
-</body>
-</html>
+{% endblock %}
