@@ -44,7 +44,7 @@ py -m venv .venv
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+py -m pip install -r requirements.txt
 ```
 
 Apply migrations:
