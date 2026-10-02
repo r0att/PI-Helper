@@ -13,6 +13,7 @@ from .views import (
     confirm_email_change,
     resend_verification,
     check_registration_username,
+    delete_account,
 )
 
 
@@ -29,4 +30,5 @@ urlpatterns = [
     path("confirm-email-change/<uuid:token>/", confirm_email_change, name="confirm_email_change"),
     path("resend-verification/", resend_verification, name="resend_verification"),
     path("check-registration-username/", check_registration_username, name="check_registration_username"),
+    path("delete-account/", delete_account, name="delete_account"),
 ]

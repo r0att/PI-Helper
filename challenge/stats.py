@@ -20,7 +20,7 @@ def update_challenge_stats(user: User, start_digit, digits_entered: int, won: bo
         profile.total_lost_games += 1
         profile.challenge_lost_games += 1
 
-    if start_digit == 1 and profile.user.profile.challenge_personal_best < digits_entered:
+    if start_digit == 1 and profile.challenge_personal_best < digits_entered:
         profile.challenge_personal_best = digits_entered
 
     profile.save()
@@ -67,7 +67,7 @@ def update_hard_mode_stats(user: User, start_digit, digits_entered: int, won: bo
         profile.total_lost_games += 1
         profile.hard_mode_lost_games += 1
 
-    if start_digit == 1 and profile.user.profile.hard_mode_personal_best < digits_entered:
+    if start_digit == 1 and profile.hard_mode_personal_best < digits_entered:
         profile.hard_mode_personal_best = digits_entered
 
     profile.save()

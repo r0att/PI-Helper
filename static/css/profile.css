@@ -1,5 +1,10 @@
 #edit-profile-modal {
     display: none;
+}
+
+#edit-profile-modal,
+#delete-account-popup,
+#delete-account-confirm-popup {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -7,8 +12,25 @@
     align-items: center;
 }
 
-#edit-profile-modal-content {
+#delete-account-popup,
+#delete-account-confirm-popup {
+    display: flex;
+}
+
+#delete-account-popup[hidden],
+#delete-account-confirm-popup[hidden] {
+    display: none;
+}
+
+#edit-profile-modal-content,
+#delete-account-popup > div,
+#delete-account-confirm-popup > div {
     background: white;
     padding: 20px;
     min-width: 300px;
+}
+
+#delete-account-errors {
+    color: #b00020;
+    margin-bottom: 12px;
 }

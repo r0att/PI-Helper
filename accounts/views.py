@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -18,6 +18,7 @@ from .forms import (
     ChangePasswordForm,
     ChangeEmailForm,
     ResendVerificationForm,
+    DeleteAccountForm,
 )
 from .models import (
     EmailChangeToken,
@@ -31,8 +32,6 @@ def register(request):
         form = RegistrationForm(request.POST)
 
         if form.is_valid():
-            print("FORM VALID")
-
             user = form.save(commit=False)
             user.is_active = False
             user.save()
@@ -216,6 +215,7 @@ def profile(request):
     else:
         profile_form = ProfileForm(instance=profile)
         username_form = UsernameForm(instance=request.user)
+        delete_account_form = DeleteAccountForm(request.user)
 
     return render(
         request,
@@ -224,6 +224,7 @@ def profile(request):
             "profile": profile,
             "profile_form": profile_form,
             "username_form": username_form,
+            "delete_account_form": delete_account_form,
         },
     )
 
@@ -394,3 +395,31 @@ def confirm_password_change(request, token):
         request,
         "accounts/password_change_success.html",
     )
+
+@login_required
+def delete_account(request):
+    if request.method != "POST":
+        return redirect("profile")
+
+    if request.POST.get("final_confirmation") == "1":
+        user = request.user
+
+        logout(request)
+        user.delete()
+
+        return redirect("home")
+
+    form = DeleteAccountForm(
+        request.user,
+        request.POST,
+    )
+
+    if form.is_valid():
+        return JsonResponse({
+            "success": True,
+        })
+
+    return JsonResponse({
+        "success": False,
+        "errors": form.errors,
+    }, status=400)

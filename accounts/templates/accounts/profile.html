@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}?v=3">
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/profile.js' %}" defer></script>
+    <script src="{% static 'js/profile.js' %}?v=3" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -94,5 +94,76 @@
     <p>Games today: {{ profile.games_today }}</p>
 
     <a href="{% url 'home' %}">Back to home</a>
+
+    <button type="button" id="delete-account-button">
+        Delete account
+    </button>
+
+    <div id="delete-account-popup" hidden>
+        <div>
+            <h2>Delete account</h2>
+
+            <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+
+                <div
+                    id="delete-account-errors"
+                    role="alert"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+                {{ delete_account_form.as_p }}
+
+                <button type="submit">
+                    Continue
+                </button>
+
+                <button type="button" id="delete-account-cancel">
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-account-confirm-popup" hidden>
+        <div>
+            <h2>Are you sure?</h2>
+
+            <p>
+                Deleting your account is permanent and cannot be undone.
+            </p>
+
+            <p>
+                All data associated with your account will be permanently deleted.
+            </p>
+
+            <p>
+                This includes your profile, statistics, achievements,
+                and other account-related records.
+            </p>
+
+            <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="final_confirmation"
+                    value="1"
+                >
+
+                <button type="submit">
+                    Confirm delete account
+                </button>
+
+                <button
+                    type="button"
+                    id="delete-account-confirm-cancel"
+                >
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </div>
 
 {% endblock %}
